@@ -1,13 +1,10 @@
-package kube
+package main
 
 import (
-	"fmt"
-	//"k8s.io/client-go/kubernetes"
-	//"k8s.io/client-go/tools/clientcmd"
+	kube "github.com/arvindrajpurohit/kube-scaling/kube"
 )
 
 func main() {
+	a := kube.scalereplicaset("frontend", "default", 3)
 
-	scaletest := *kube
-	fmt.Println(scaletest)
 }
