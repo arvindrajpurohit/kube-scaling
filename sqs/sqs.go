@@ -45,11 +45,11 @@ func Sess(Region string, configpath string, profile string) *session.Session {
 
 }
 
-func Qcount() int {
+func Qcount(QUrl string) int {
 
 	input := &sqs.GetQueueAttributesInput{
 		AttributeNames: []*string{aws.String("ApproximateNumberOfMessages")},
-		QueueUrl:       aws.String("https://sqs.us-west-2.amazonaws.com/224086203907/rb_data_scale"),
+		QueueUrl:       aws.String(QUrl),
 	}
 	svc := sqs.New(Sess("us-west-2", "/Users/admin/.aws/config", "default"))
 	svcout, err := svc.GetQueueAttributes(input)
