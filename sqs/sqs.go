@@ -1,49 +1,64 @@
 package sqs
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	session "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
-
-	"github.com/pkg/errors"
 )
 
-type SQS interface {
-	GetQueueAttributes(*sqs.GetQueueAttributesInput) (*sqs.GetQueueAttributesOutput, error)
-	// only implemented on unit tests
-	SetQueueAttributes(*sqs.SetQueueAttributesInput) (*sqs.SetQueueAttributesOutput, error)
-}
+//func main() {
 
-type SqsClient struct {
-	Client   SQS
-	QueueUrl string
-}
+//	const (
+//		QueueUrl    = "https://sqs.us-west-2.amazonaws.com/224086203907/rb_data_scale"
+//		Region      = "us-west-2"
+//		CredPath    = "/Users/admin/.aws/credentials"
+//		CredProfile = "default"
+//	)
+//
+//var a *string = "t"
+//attributesOutput := map[string]*string{}
+//svc := sqs.New(Session())
+//svcout, err := svc.GetQueueAttributes(a)
 
-func NewSqsClient(queue string, region string) *SqsClient {
-	svc := sqs.New(session.New(), &aws.Config{Region: aws.String(region)})
-	return &SqsClient{
-		svc,
-		queue,
+//	fmt.Println(a, svcout, svc, err)
+
+//	a := &sqs.GetQueueAttributesInput{
+//		AttributeNames: []*string{aws.String("ApproximateNumberOfMessages")},
+//		QueueUrl:       aws.String(QueueUrl),
+//	fmt.Println(qcount())
+//}
+
+func Sess(Region string, configpath string, profile string) *session.Session {
+	//s := Session.New()
+	sess := aws.Config{
+		Region:      aws.String(Region),
+		Credentials: credentials.NewSharedCredentials(configpath, profile),
+		MaxRetries:  aws.Int(5),
 	}
+
+	clinet := session.New(&sess)
+	return clinet
+
 }
 
-func (s *SqsClient) NumMessages() (int, error) {
-	params := &sqs.GetQueueAttributesInput{
+func Qcount() int {
+
+	input := &sqs.GetQueueAttributesInput{
 		AttributeNames: []*string{aws.String("ApproximateNumberOfMessages")},
-		QueueUrl:       aws.String(s.QueueUrl),
+		QueueUrl:       aws.String("https://sqs.us-west-2.amazonaws.com/224086203907/rb_data_scale"),
 	}
-
-	out, err := s.Client.GetQueueAttributes(params)
+	svc := sqs.New(Sess("us-west-2", "/Users/admin/.aws/config", "default"))
+	svcout, err := svc.GetQueueAttributes(input)
 	if err != nil {
-		return 0, errors.Wrap(err, "Failed to get messages in SQS")
+		fmt.Println(err, "Failed to get messages in SQS")
 	}
-
-	messages, err := strconv.Atoi(*out.Attributes["ApproximateNumberOfMessages"])
+	messages, err := strconv.Atoi(*svcout.Attributes["ApproximateNumberOfMessages"])
 	if err != nil {
-		return 0, errors.Wrap(err, "Failed to get number of messages in queue")
+		fmt.Println(err, "Failed to get number of messages in queue")
 	}
-
-	return messages, nil
+	return messages
 }

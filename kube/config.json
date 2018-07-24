@@ -1,0 +1,16 @@
+"service1"
+{
+"service_name": "dispachet",
+"SQS_Q_name": "relayed_raw",
+"max_Replicas": 4,
+"Min_Replicas": 2,
+"Q_size": 500
+},
+
+"service2"
+{
+"service_nmae": "",
+"SQS_Q_name": "",
+"max_Replicas": 4,
+"Min_Replicas": 2
+}
